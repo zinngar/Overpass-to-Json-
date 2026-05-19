@@ -5,6 +5,11 @@ const downloadBtn = document.querySelector<HTMLButtonElement>('#download-btn')!;
 const statusEl = document.querySelector<HTMLDivElement>('#status')!;
 const logEl = document.querySelector<HTMLPreElement>('#log')!;
 
+const southInput = document.querySelector<HTMLInputElement>('#south')!;
+const westInput = document.querySelector<HTMLInputElement>('#west')!;
+const northInput = document.querySelector<HTMLInputElement>('#north')!;
+const eastInput = document.querySelector<HTMLInputElement>('#east')!;
+
 let fetchedData: any = null;
 
 function log(message: string) {
@@ -13,44 +18,61 @@ function log(message: string) {
   logEl.scrollTop = logEl.scrollHeight;
 }
 
-function setStatus(message: string) {
+function setStatus(message: string, isError = false) {
   statusEl.textContent = message;
+  statusEl.style.color = isError ? '#ff4646' : '#646cff';
   log(message);
 }
 
 async function fetchTrafficLights() {
   const overpassUrl = 'https://overpass-api.de/api/interpreter';
 
-  // Query to get all traffic signals globally.
-  // Note: This might be a very large response.
-  const fullQuery = `
+  const s = southInput.value;
+  const w = westInput.value;
+  const n = northInput.value;
+  const e = eastInput.value;
+
+  let bbox = '';
+  if (s && w && n && e) {
+    bbox = `(${s},${w},${n},${e})`;
+  }
+
+  const query = `
     [out:json][timeout:180];
-    node["highway"="traffic_signals"];
+    node["highway"="traffic_signals"]${bbox};
     out body;
   `;
 
   try {
     fetchBtn.disabled = true;
     downloadBtn.disabled = true;
-    setStatus('Fetching data from Overpass API (this may take a while)...');
+    fetchedData = null;
+    setStatus(`Fetching data from Overpass API ${bbox ? 'for selected area' : 'globally (this may take a while)'}...`);
 
     const response = await fetch(overpassUrl, {
       method: 'POST',
-      body: `data=${encodeURIComponent(fullQuery)}`,
+      body: `data=${encodeURIComponent(query)}`,
     });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    fetchedData = await response.json();
+    const data = await response.json();
+
+    // Overpass sometimes returns a 200 OK but with a "remark" field containing an error message (like timeout)
+    if (data.remark) {
+      throw new Error(`Overpass Error: ${data.remark}`);
+    }
+
+    fetchedData = data;
     const count = fetchedData.elements ? fetchedData.elements.length : 0;
 
     setStatus(`Successfully fetched ${count} traffic lights.`);
     downloadBtn.disabled = false;
   } catch (error) {
     console.error('Fetch error:', error);
-    setStatus(`Error: ${error instanceof Error ? error.message : String(error)}`);
+    setStatus(`Error: ${error instanceof Error ? error.message : String(error)}`, true);
   } finally {
     fetchBtn.disabled = false;
   }
@@ -78,7 +100,7 @@ function downloadJson() {
 
     setStatus('Download started.');
   } catch (error) {
-    setStatus(`Download error: ${error instanceof Error ? error.message : String(error)}`);
+    setStatus(`Download error: ${error instanceof Error ? error.message : String(error)}`, true);
   }
 }
 

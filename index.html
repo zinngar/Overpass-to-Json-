@@ -9,10 +9,35 @@
   <body>
     <div id="app">
       <h1>Traffic Light Data Fetcher</h1>
-      <div class="card">
+
+      <div class="card area-selection">
+        <h3>Define Area (Optional)</h3>
+        <div class="bbox-inputs">
+          <div>
+            <label for="south">South</label>
+            <input type="number" id="south" placeholder="e.g. 52.50" step="0.01">
+          </div>
+          <div>
+            <label for="west">West</label>
+            <input type="number" id="west" placeholder="e.g. 13.35" step="0.01">
+          </div>
+          <div>
+            <label for="north">North</label>
+            <input type="number" id="north" placeholder="e.g. 52.55" step="0.01">
+          </div>
+          <div>
+            <label for="east">East</label>
+            <input type="number" id="east" placeholder="e.g. 13.45" step="0.01">
+          </div>
+        </div>
+        <p class="hint">Leave empty for a global query (may timeout).</p>
+      </div>
+
+      <div class="card actions">
         <button id="fetch-btn" type="button">Fetch Traffic Lights Data</button>
         <button id="download-btn" type="button" disabled>Download JSON</button>
       </div>
+
       <div id="status">Ready.</div>
       <pre id="log"></pre>
     </div>
