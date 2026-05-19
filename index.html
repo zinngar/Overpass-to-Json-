@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Traffic Light Data Fetcher</title>
+  </head>
+  <body>
+    <div id="app">
+      <h1>Traffic Light Data Fetcher</h1>
+      <div class="card">
+        <button id="fetch-btn" type="button">Fetch Traffic Lights Data</button>
+        <button id="download-btn" type="button" disabled>Download JSON</button>
+      </div>
+      <div id="status">Ready.</div>
+      <pre id="log"></pre>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
